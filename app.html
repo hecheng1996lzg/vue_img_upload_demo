@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+  <script src="https://cdn.bootcdn.net/ajax/libs/axios/0.21.0/axios.js"></script>
+  <style>
+    /*
+     * file load
+     */
+    .file-upload-btn {
+      position: relative;
+      width: 190px;
+      height: 200px;
+      background: rgba(255, 255, 255, 1);
+      border: 1px solid #ccc;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #999;
+      cursor: pointer;
+    }
+
+    .file-img-view {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+    }
+
+    .file-upload > input {
+      width: 0;
+      height: 0;
+      opacity: 0;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+<main id="app">
+  <div class="row">
+    <div class="col-12 col-lg-4 mb-3">
+      <div>
+        <label for="file">Photo</label>
+      </div>
+      <div class="file-upload">
+        <div class="file-upload-btn" @click="upload">
+          <span>Choose Photo</span>
+          <img class="file-img-view" v-if="imgView" :src="imgView" alt="">
+        </div>
+        <input
+            id="file"
+            type="file"
+            accept="image/*"
+            name="imgF"
+            ref="fileInput"
+            @change="fileSelect"
+        />
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+  var app = new Vue({
+    el: '#app',
+    data() {
+      return {
+        imgView: '',
+        otherColumn: '',
+      };
+    },
+    methods: {
+      upload() {
+        this.$refs.fileInput.click();
+      },
+      fileSelect(e) {
+        let formdata = new FormData();
+        formdata.append("imgF", e.target.files[0]);
+        formdata.append("otherColumn", this.otherColumn);  //vue双向绑定的其它字段
+        console.log(formdata);
+        axios({
+          url: "http://localhost/Z_Camp/public/api/imgViewDemo",
+          data: formdata,
+          method: "post",
+          headers: {
+            "Content-Type": "multipart/form-data "
+          }
+        })
+          .then(res => {
+            console.log(res);
+            this.imgView = "http://localhost/Z_Camp/storage/app/" + res.data.data;
+          })
+          .catch(() => {
+            alert("上传失败！");
+          });
+      }
+    }
+  })
+</script>
+</body>
+</html>
